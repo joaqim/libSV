@@ -1,0 +1,4 @@
+[submodule "third_party/repos/spherical_voronoi_core"]
+	path = third_party/repos/spherical_voronoi_core
+	url = https://github.com/joaqim/spherical_voronoi_core
+	branch = using_float
