@@ -1,7 +1,6 @@
 AUTOMAKE_OPTIONS = foreign 
 ACLOCAL_AMFLAGS = -I m4 --install
-AM_CXXFLAGS = -fpic -Wall -Wextra -Werror -x c++ -isystem /usr/local/include -isystem /usr/include
-
+AM_CXXFLAGS = -fpic -Wall -Wextra -Werror -x c++ -isystem /usr/local/include -isystem /usr/include -isystem include -I include -isystem ../include -I ../include
 # Windows
 #AM_LDFLAGS = -lopengl32
 

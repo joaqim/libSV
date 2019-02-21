@@ -1,5 +1,5 @@
 AUTOMAKE_OPTIONS = subdir-objects #foreign
-#ACLOCAL_AMFLAGS = $(ACLOCAL_FLAGS)# $(AM_CXXFLAGS)
+#ACLOCAL_AMFLAGS = $(ACLOCAL_FLAGS) $(AM_CXXFLAGS) -I ../include -isystem ../include
 bin_PROGRAMS = main
 main_SOURCES = main.cpp
 

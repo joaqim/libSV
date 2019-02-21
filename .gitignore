@@ -3,6 +3,11 @@
 
 /third_party/repos/
 /src/test.bmp
+test.bmp
+
+a.out
+a.out.js
+a.out.js.mem
 
 # http://www.gnu.org/software/automake
 
@@ -43,7 +48,6 @@ Makefile.in
 # http://www.gnu.org/software/m4/
 
 /libtool
-/m4
 /m4/libtool.m4
 /m4/ltoptions.m4
 /m4/ltsugar.m4
