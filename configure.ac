@@ -32,6 +32,7 @@ if test x$ac_success = xno; then
 fi
 
 # Conditionals
+
 AC_ARG_ENABLE(debug,
 	      AS_HELP_STRING([--enable-debug], [enable debugging, default: yes]),
 	      [case "${enableval}" in
@@ -44,6 +45,66 @@ AC_ARG_ENABLE(debug,
 AM_CONDITIONAL(DEBUG, test x"$debug" = x"true")
 #AC_DEFINE_UNQUOTED([DEBUG], ["$debug"])
 
+dnl emscripten
+AC_ARG_ENABLE([emscripten],
+AS_HELP_STRING([--enable-emscripten], [Build for web with emscripten]),
+[], [enable_emscripten=no])
+AS_IF([test "x$enable_emscripten" = "xyes" || test "x$EMSCRIPTEN" = "xyes"], [
+  dnl Set up emscripten
+  m4_include([m4/emscripten.m4])
+  AC_DEFINE([EMSCRIPTEN], [1], [Define EMSCRIPTEN])
+  enable_threading=no
+  enable_gles=yes
+  enable_sdl=yes
+], [
+  dnl Running in a normal OS (not emscripten)
+  AX_CHECK_GL
+
+  # check OS
+  AC_CANONICAL_HOST
+  AC_MSG_CHECKING(Freedom)
+  case $host_os in
+  darwin*)
+    # OSX needs CoreFoundation
+    AC_MSG_RESULT(Apple hoarderware detected)
+    LIBS="$LIBS -framework CoreFoundation"
+    ;;
+  linux*)
+    # limux needs dl
+    AC_MSG_RESULT(GNU/LINUX detected)
+    LIBS="$LIBS -ldl"
+    ;;
+  esac
+])
+
+dnl Threading
+AC_ARG_ENABLE([threading],
+AS_HELP_STRING([--enable-threading], [multhreading]),
+[], [enable_threading=yes])
+AS_IF([test "x$enable_threading" = "xyes" && ! test "$EMSCRIPTEN"], [
+  m4_include([m4/autoconf-archive/ax_pthread.m4])
+  AX_PTHREAD([
+    AC_DEFINE([USE_THREADS], [1], [Define USE_THREADS])
+    LIBS="$LIBS $PTHREAD_LIBS $PTHREAD_CFLAGS"
+    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+    echo "LIBS=$LIBS"
+  ], [
+    AC_MSG_ERROR([pthreads not found])
+  ])
+])
+
+AC_ARG_ENABLE([gles],
+  AS_HELP_STRING([--enable-gles], [OpenGL ES support]),
+  [], [enable_gles=no])
+  AS_IF([test "x$enable_gles" = "xyes"], [
+    AC_DEFINE([USE_GLES], [1], [Define USE_GLES])
+])
+
+AC_CHECK_LIB(c, dlopen, LIBDL="", AC_CHECK_LIB(dl, dlopen, LIBDL="-ldl"))
+
+AC_CHECK_FUNCS_ONCE([aligned_alloc posix_memalign])
+
 # Checks for libraries.
 AM_PROG_AR
 LT_INIT
@@ -52,6 +113,8 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL(libtool)
 
 # Checks for header files.
+
+#AC_CHECK_HEADER([glm/glm.hpp],, AC_MSG_ERROR(libglm is required.))
 
 AC_CHECK_HEADERS([fcntl.h limits.h stdint.h string.h sys/time.h termios.h unistd.h])
 #AC_CHECK_HEADERS([argtable2.h], [], AC_MSG_ERROR([Could not find argtable2.h. Try $ ./configure CXXFLAGS='-Iyour-argtable2-include-path]))
